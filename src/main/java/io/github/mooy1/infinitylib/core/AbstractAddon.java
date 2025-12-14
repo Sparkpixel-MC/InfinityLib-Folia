@@ -12,7 +12,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
 import io.github.mooy1.infinitylib.InfinityLib;
 import io.github.mooy1.infinitylib.commands.AddonCommand;
@@ -66,18 +65,18 @@ public abstract class AbstractAddon extends JavaPlugin implements SlimefunAddon 
     /**
      * Addon Testing Constructor
      */
-    public AbstractAddon(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file,
-                            String githubUserName, String githubRepo, String autoUpdateBranch, String autoUpdateKey) {
-        this(loader, description, dataFolder, file, githubUserName, githubRepo, autoUpdateBranch, autoUpdateKey, Environment.TESTING);
+    public AbstractAddon(PluginDescriptionFile description, File dataFolder, File file,
+                         String githubUserName, String githubRepo, String autoUpdateBranch, String autoUpdateKey) {
+        this(description, dataFolder, file, githubUserName, githubRepo, autoUpdateBranch, autoUpdateKey, Environment.TESTING);
     }
 
     /**
      * Library Testing Constructor
      */
-    AbstractAddon(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file,
+    AbstractAddon(PluginDescriptionFile description, File dataFolder, File file,
                   String githubUserName, String githubRepo, String autoUpdateBranch, String autoUpdateKey,
                   Environment environment) {
-        super(loader, description, dataFolder, file);
+        super();
         this.updater = null;
         this.environment = environment;
         this.githubUserName = githubUserName;
@@ -87,6 +86,7 @@ public abstract class AbstractAddon extends JavaPlugin implements SlimefunAddon 
         this.bugTrackerURL = "https://github.com/" + githubUserName + "/" + githubRepo + "/issues";
         validate();
     }
+
 
     private void validate() {
         if (environment == Environment.LIVE) {
