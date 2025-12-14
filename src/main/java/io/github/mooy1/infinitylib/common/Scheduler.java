@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 
 import io.github.mooy1.infinitylib.core.AbstractAddon;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A class for scheduling tasks
  *
@@ -18,19 +20,20 @@ import io.github.mooy1.infinitylib.core.AbstractAddon;
 public final class Scheduler {
 
     public static void run(Runnable runnable) {
-        Bukkit.getScheduler().runTask(AbstractAddon.instance(), runnable);
+        Bukkit.getGlobalRegionScheduler().run(AbstractAddon.instance(), scheduledTask -> runnable.run());
     }
 
     public static void runAsync(Runnable runnable) {
-        Bukkit.getScheduler().runTaskAsynchronously(AbstractAddon.instance(), runnable);
+        Bukkit.getAsyncScheduler().runNow(AbstractAddon.instance(), scheduledTask -> runnable.run());
     }
 
     public static void run(int delayTicks, Runnable runnable) {
-        Bukkit.getScheduler().runTaskLater(AbstractAddon.instance(), runnable, delayTicks);
+        Bukkit.getGlobalRegionScheduler().runDelayed(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayTicks);
     }
 
     public static void runAsync(int delayTicks, Runnable runnable) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(AbstractAddon.instance(), runnable, delayTicks);
+        long delayInMillis = delayTicks * 50L;
+        Bukkit.getAsyncScheduler().runDelayed(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayInMillis, TimeUnit.MILLISECONDS);
     }
 
     public static void repeat(int intervalTicks, Runnable runnable) {
@@ -42,11 +45,18 @@ public final class Scheduler {
     }
 
     public static void repeat(int intervalTicks, int delayTicks, Runnable runnable) {
-        Bukkit.getScheduler().runTaskTimer(AbstractAddon.instance(), runnable, delayTicks, Math.max(1, intervalTicks));
-    }
+        long delay = delayTicks * 50L;
+        long interval = Math.max(1, intervalTicks) * 50L;
 
+        Bukkit.getGlobalRegionScheduler().runAtFixedRate(
+                AbstractAddon.instance(),
+                scheduledTask -> runnable.run(),
+                delay,
+                interval
+        );
+    }
     public static void repeatAsync(int intervalTicks, int delayTicks, Runnable runnable) {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(AbstractAddon.instance(), runnable, delayTicks, Math.max(1, intervalTicks));
+        Bukkit.getGlobalRegionScheduler().runAtFixedRate(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayTicks, Math.max(1, intervalTicks));
     }
 
 }
