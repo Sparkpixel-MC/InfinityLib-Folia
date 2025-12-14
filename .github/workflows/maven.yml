@@ -34,7 +34,7 @@ jobs:
             target/*.jar
         
       - name: Publish package
-        run: mvn --batch-mode -pl dough-api -am deploy
+        run: mvn --batch-mode -pl infinitylib -am deploy
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
