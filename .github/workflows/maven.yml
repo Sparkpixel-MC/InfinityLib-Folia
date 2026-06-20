@@ -3,7 +3,7 @@ name: Build and Update External Lib
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main , master ]
 
 jobs:
   Update-Lib:
