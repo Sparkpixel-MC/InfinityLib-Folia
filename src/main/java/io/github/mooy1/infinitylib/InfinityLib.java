@@ -11,7 +11,7 @@ public final class InfinityLib {
     /**
      * The version of this InfinityLib package, for example 1.2.3 or Unofficial
      */
-    public static final String VERSION = "1.3.10-Folia";
+    public static final String VERSION = "2.0.0-Folia";
 
     /**
      * The package of this class, for example: me.name.addon.infinitylib

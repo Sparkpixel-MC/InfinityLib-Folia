@@ -20,20 +20,20 @@ import java.util.concurrent.TimeUnit;
 public final class Scheduler {
 
     public static void run(Runnable runnable) {
-        Bukkit.getGlobalRegionScheduler().run(AbstractAddon.instance(), scheduledTask -> runnable.run());
+        Bukkit.getGlobalRegionScheduler().run(AbstractAddon.instance(), _ -> runnable.run());
     }
 
     public static void runAsync(Runnable runnable) {
-        Bukkit.getAsyncScheduler().runNow(AbstractAddon.instance(), scheduledTask -> runnable.run());
+        Bukkit.getAsyncScheduler().runNow(AbstractAddon.instance(), _ -> runnable.run());
     }
 
     public static void run(int delayTicks, Runnable runnable) {
-        Bukkit.getGlobalRegionScheduler().runDelayed(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayTicks);
+        Bukkit.getGlobalRegionScheduler().runDelayed(AbstractAddon.instance(), _ -> runnable.run(), delayTicks);
     }
 
     public static void runAsync(int delayTicks, Runnable runnable) {
         long delayInMillis = delayTicks * 50L;
-        Bukkit.getAsyncScheduler().runDelayed(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayInMillis, TimeUnit.MILLISECONDS);
+        Bukkit.getAsyncScheduler().runDelayed(AbstractAddon.instance(), _ -> runnable.run(), delayInMillis, TimeUnit.MILLISECONDS);
     }
 
     public static void repeat(int intervalTicks, Runnable runnable) {
@@ -50,13 +50,15 @@ public final class Scheduler {
 
         Bukkit.getGlobalRegionScheduler().runAtFixedRate(
                 AbstractAddon.instance(),
-                scheduledTask -> runnable.run(),
+                _ -> runnable.run(),
                 delay,
                 interval
         );
     }
     public static void repeatAsync(int intervalTicks, int delayTicks, Runnable runnable) {
-        Bukkit.getGlobalRegionScheduler().runAtFixedRate(AbstractAddon.instance(), scheduledTask -> runnable.run(), delayTicks, Math.max(1, intervalTicks));
+        long delayInMillis = delayTicks * 50L;
+        long intervalInMillis = Math.max(1, intervalTicks) * 50L;
+        Bukkit.getAsyncScheduler().runAtFixedRate(AbstractAddon.instance(), _ -> runnable.run(), delayInMillis, intervalInMillis, TimeUnit.MILLISECONDS);
     }
 
 }
