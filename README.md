@@ -51,56 +51,38 @@ It also adds some default commands such as an addon info, aliases, and help comm
 
 # How to use
 
-First you need to add InfinityLib to the `dependencies` section in your `pom.xml`:
+This fork of InfinityLib is built with Gradle. Add it to the `dependencies` section
+in your `build.gradle.kts`:
 
-```xml
-<dependency>
-    <groupId>com.github.ybw0014</groupId>
-    <artifactId>InfinityLib</artifactId>
-    <version>SPECIFY VERSION HERE</version>
-    <scope>compile</scope>
-</dependency>
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    compileOnly("com.github.ybw0014:InfinityLib:SPECIFY VERSION HERE")
+}
 ```
 
-Then you need to relocate it into your own package so that it doesn't conflict with other addon's classes.
+Then you need to shade and relocate it into your own package so that it doesn't
+conflict with other addons' classes. Using the Gradle shadow plugin:
 
-Under the `build` section in your `pom.xml`, you should have the following:
+```kotlin
+plugins {
+    id("com.gradleup.shadow") version "9.6.1"
+}
 
-```xml
-<plugins>
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <configuration>
-            <!-- This will exclude any unused classes from libraries to reduce file size, not required -->
-            <minimizeJar>true</minimizeJar>
-            <relocations>
-                <!-- This is the relocation, make sure to replace the package name, REQUIRED -->
-                <relocation>
-                    <pattern>io.github.mooy1.infinitylib</pattern>
-                    <shadedPattern>YOUR.MAIN.PACKAGE.HERE.infinitylib</shadedPattern>
-                </relocation>
-            </relocations>
-            <filters>
-                <filter>
-                    <artifact>*:*</artifact>
-                    <excludes>
-                        <exclude>META-INF/*</exclude>
-                    </excludes>
-                </filter>
-            </filters>
-        </configuration>
-        <executions>
-            <execution>
-                <phase>package</phase>
-                <goals>
-                    <goal>shade</goal>
-                </goals>
-            </execution>
-        </executions>
-    </plugin>
-</plugins>
+tasks.shadowJar {
+    // minimizeJar: exclude unused classes to reduce file size, not required
+    minimize()
+    // REQUIRED: make sure to replace the package name
+    relocate("io.github.mooy1.infinitylib", "YOUR.MAIN.PACKAGE.HERE.infinitylib")
+    exclude("META-INF/*")
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
 ```
 
 Then change your main plugin class to extend `AbstractAddon` and implement the constructor.

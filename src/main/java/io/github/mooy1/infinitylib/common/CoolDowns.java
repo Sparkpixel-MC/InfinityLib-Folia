@@ -1,8 +1,8 @@
 package io.github.mooy1.infinitylib.common;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public final class CoolDowns {
 
-    private final Map<UUID, Long> map = new HashMap<>();
+    private final Map<UUID, Long> map = new ConcurrentHashMap<>();
     private final long cd;
 
     public boolean check(UUID uuid) {

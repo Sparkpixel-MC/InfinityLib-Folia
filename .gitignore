@@ -8,3 +8,7 @@
 dependency-reduced-pom.xml
 .DS_Store
 pom.xml.versionsBackup
+
+# Gradle
+.gradle/
+build/

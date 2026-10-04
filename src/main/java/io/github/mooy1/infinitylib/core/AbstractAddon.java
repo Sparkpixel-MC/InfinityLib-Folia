@@ -40,7 +40,7 @@ public abstract class AbstractAddon extends JavaPlugin implements SlimefunAddon 
 
     private AddonCommand command;
     private AddonConfig config;
-    private int slimefunTickCount;
+    private volatile int slimefunTickCount;
     private boolean autoUpdatesEnabled;
     private boolean disabling;
     private boolean enabling;
@@ -139,6 +139,9 @@ public abstract class AbstractAddon extends JavaPlugin implements SlimefunAddon 
         }
 
         enabling = true;
+
+        // Detect Folia once, cache the result
+        Scheduler.isFolia();
 
         // Set static instance
         instance = this;

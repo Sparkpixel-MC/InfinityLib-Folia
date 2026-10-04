@@ -1,7 +1,7 @@
 package io.github.mooy1.infinitylib.machines;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +33,7 @@ public class CraftingBlock extends MenuBlock {
 
     @Setter
     protected MachineLayout layout = MachineLayout.CRAFTING_DEFAULT;
-    private final List<CraftingBlockRecipe> recipes = new ArrayList<>();
+    private final List<CraftingBlockRecipe> recipes = new CopyOnWriteArrayList<>();
 
     public CraftingBlock(ItemGroup category, SlimefunItemStack item, RecipeType recipeType, ItemStack[] recipe) {
         super(category, item, recipeType, recipe);

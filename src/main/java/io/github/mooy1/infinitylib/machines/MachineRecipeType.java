@@ -1,9 +1,9 @@
 package io.github.mooy1.infinitylib.machines;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 import lombok.Getter;
@@ -16,8 +16,8 @@ import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
 public final class MachineRecipeType extends RecipeType {
 
     @Getter
-    private final Map<ItemStack[], ItemStack> recipes = new LinkedHashMap<>();
-    private final List<BiConsumer<ItemStack[], ItemStack>> callbacks = new ArrayList<>();
+    private final Map<ItemStack[], ItemStack> recipes = new ConcurrentHashMap<>();
+    private final List<BiConsumer<ItemStack[], ItemStack>> callbacks = new CopyOnWriteArrayList<>();
 
     public MachineRecipeType(String key, ItemStack item) {
         super(AbstractAddon.createKey(key), item);
