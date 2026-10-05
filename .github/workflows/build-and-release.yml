@@ -10,7 +10,14 @@ permissions:
   contents: write
 
 env:
-  EXPANSION_REPO: Sparkpixel-MC/InfinityExpansion-Folia
+  # Downstream repositories that bundle InfinityLib into their libs/ folder.
+  # One repository per line (Owner/Repo), blank lines and # comments are ignored.
+  # Each repo's build script must reference libs/InfinityLib.jar.
+  DOWNSTREAM_REPOS: |
+    Sparkpixel-MC/InfinityExpansion-Folia
+    Sparkpixel-MC/FoxyMachines-Folia
+    Sparkpixel-MC/SimpleUtils-Folia
+  DOWNSTREAM_JAR_NAME: InfinityLib.jar
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -88,8 +95,8 @@ jobs:
           path: ${{ steps.jar.outputs.Jar_Path }}
           if-no-files-found: error
 
-  update-expansion:
-    name: Update InfinityExpansion dependency
+  update-downstream:
+    name: Update downstream dependencies
     needs: build
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -100,44 +107,71 @@ jobs:
           name: InfinityLib
           path: artifacts
 
-      - name: Locate downloaded jar
-        id: jar
+      - name: Push jar to all downstream repositories
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          JAR_NAME: ${{ needs.build.outputs.Jar_Name }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
-          set -e
+          set -euo pipefail
           JAR=$(find artifacts -maxdepth 1 -type f -name '*.jar' | head -n 1)
           if [ -z "$JAR" ]; then
             echo "No JAR found in artifacts" >&2
             ls -la artifacts || true
             exit 1
           fi
-          echo "jar=$JAR" >> "$GITHUB_OUTPUT"
+          echo "Bundling JAR: $JAR"
 
-      - name: Checkout expansion repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.EXPANSION_REPO }}
-          token: ${{ secrets.PAT_TOKEN }}
-          path: expansion
+          FAILED=0
+          UPDATED=""
+          while IFS= read -r repo; do
+            repo="${repo//[[:space:]]/}"
+            [ -z "$repo" ] && continue
+            case "$repo" in "#"*) continue ;; esac
 
-      - name: Copy jar into expansion libs/
-        run: |
-          mkdir -p expansion/libs
-          cp "${{ steps.jar.outputs.jar }}" expansion/libs/InfinityLib.jar
-          sha256sum expansion/libs/InfinityLib.jar
+            echo "::group::Updating $repo"
+            dir="downstream/$(echo "$repo" | tr '/' '_')"
+            if ! git clone --depth 1 "https://x-access-token:${PAT_TOKEN}@github.com/${repo}.git" "$dir"; then
+              echo "::error::Failed to clone $repo"
+              FAILED=1
+              echo "::endgroup::"
+              continue
+            fi
 
-      - name: Commit and push
-        run: |
-          cd expansion
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add libs/InfinityLib.jar
-          if git diff --cached --quiet; then
-            echo "InfinityLib.jar is unchanged, nothing to commit"
-          else
-            git commit -m "chore(deps): update bundled InfinityLib to ${{ github.sha }} (${{ needs.build.outputs.Jar_Name }})"
-            git push
-            echo "Pushed update, InfinityExpansion's build workflow will run automatically."
-          fi
+            # create libs/ if it does not exist in the downstream repository
+            if [ ! -d "$dir/libs" ]; then
+              echo "$repo: libs/ folder does not exist, creating it"
+              mkdir -p "$dir/libs"
+            fi
+            cp "$JAR" "$dir/libs/${{ env.DOWNSTREAM_JAR_NAME }}"
+            sha256sum "$dir/libs/${{ env.DOWNSTREAM_JAR_NAME }}"
+
+            cd "$dir"
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            if git check-ignore -q "libs/${{ env.DOWNSTREAM_JAR_NAME }}"; then
+              echo "::warning::$repo ignores libs/ via .gitignore, force-adding the jar anyway"
+              git add -f "libs/${{ env.DOWNSTREAM_JAR_NAME }}"
+            else
+              git add "libs/${{ env.DOWNSTREAM_JAR_NAME }}"
+            fi
+            if git diff --cached --quiet; then
+              echo "$repo: jar unchanged, nothing to commit"
+            elif git commit -m "chore(deps): update bundled InfinityLib to ${COMMIT_SHA:0:7} (${JAR_NAME})" \
+                            -m "Upstream: https://github.com/${{ github.repository }}/commit/${COMMIT_SHA}" \
+                 && git push; then
+              echo "$repo: pushed update"
+              UPDATED="$UPDATED $repo"
+            else
+              echo "::error::Failed to commit/push to $repo"
+              FAILED=1
+            fi
+            cd - > /dev/null
+            echo "::endgroup::"
+          done < <(printf '%s\n' "$DOWNSTREAM_REPOS")
+
+          echo "Updated repositories:${UPDATED:- none}"
+          exit $FAILED
 
   release:
     name: Publish Release
