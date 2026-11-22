@@ -28,7 +28,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.updater.GitHubBuildsUp
 @ParametersAreNonnullByDefault
 public abstract class AbstractAddon extends JavaPlugin implements SlimefunAddon {
 
-    private static AbstractAddon instance;
+    private static volatile AbstractAddon instance;
 
     private final GitHubBuildsUpdater updater;
     private final Environment environment;

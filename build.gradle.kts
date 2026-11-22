@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.mooy1"
-version = "2.0.0-Folia"
+version = "2.1.0-Folia"
 
 java {
     toolchain {
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     // Folia API (includes the region/entity/global/async schedulers)
-    compileOnly("dev.folia:folia-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("dev.folia:folia-api:26.3.build.26-stable")
 
     compileOnly("com.github.SlimefunGuguProject:Slimefun4:2025.1.2")
 

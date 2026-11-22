@@ -71,7 +71,7 @@ public final class Scheduler {
         if (isFolia()) {
             Bukkit.getAsyncScheduler().runDelayed(AbstractAddon.instance(), _ -> runnable.run(), delayInMillis, TimeUnit.MILLISECONDS);
         } else {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(AbstractAddon.instance(), runnable, delayTicks);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(AbstractAddon.instance(), runnable, Math.max(1, delayTicks));
         }
     }
 
@@ -106,7 +106,7 @@ public final class Scheduler {
         if (isFolia()) {
             Bukkit.getAsyncScheduler().runAtFixedRate(AbstractAddon.instance(), _ -> runnable.run(), delayInMillis, intervalInMillis, TimeUnit.MILLISECONDS);
         } else {
-            Bukkit.getScheduler().runTaskTimerAsynchronously(AbstractAddon.instance(), runnable, delayTicks, intervalTicks);
+            Bukkit.getScheduler().runTaskTimerAsynchronously(AbstractAddon.instance(), runnable, delayInMillis / 50L, intervalInMillis / 50L);
         }
     }
 

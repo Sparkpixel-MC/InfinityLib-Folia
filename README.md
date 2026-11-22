@@ -3,6 +3,13 @@ A shaded library for Slimefun addons which adds a bunch of useful classes and ut
 
 [![Release](https://jitpack.io/v/ybw0014/InfinityLib.svg)](https://jitpack.io/#ybw0014/InfinityLib)
 
+## Compatibility
+
+- Paper / Folia 26.3 (compiled against `dev.folia:folia-api:26.3.build.26-stable`)
+- Java 25
+- Slimefun4 2025.1.2 (GuguProject) or a compatible fork
+- Folia: all scheduling goes through `Scheduler`, which routes to the region, entity, global, or async scheduler
+
 # Packages & Features
 ## Core
 <b>AbstractAddon</b>: An implementation of JavaPlugin
